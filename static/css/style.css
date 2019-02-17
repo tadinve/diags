@@ -1,0 +1,29 @@
+.smaller {
+    font-size: 60%;
+}
+
+/* .nav-tabs .nav-link {
+    color: #495057;
+    background-color: #dee2e6;
+    border-color: #dee2e6 #dee2e6 #fff;
+    border: 1px solid transparent;
+}  */
+@media (min-width: 576px) {
+    .card-group {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-direction: column;
+        flex-direction: column;
+    }
+
+}
+
+@media (min-width: 992px) {
+    .card-group {
+        -ms-flex-flow: row wrap;
+        flex-flow: row wrap;
+    }
+}
+.text-green{
+    color:#00ff00 !important;
+}
