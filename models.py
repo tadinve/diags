@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 import enum
+from utils import DiagnoseImage
 db = SQLAlchemy()
 
 
@@ -48,6 +49,10 @@ class Patient(db.Model):
     company = db.relationship('Company',
                               backref=db.backref('patients', lazy=True))
 
+    @property
+    def fullname(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
     def __repr__(self):
         return "P{0:0=3d}".format(self.id)
 
@@ -61,13 +66,15 @@ class ImageType(enum.Enum):
 class DiagImage(db.Model):
     __tablename__ = 'diagimages'
     id = db.Column(db.Integer, primary_key=True)
+    image = db.Column(db.String)
     image_type = db.Column(db.Enum(ImageType))
     diag_json = db.Column(db.Text)
     diag_boxes = db.Column(db.Text)
-    date_loaded = db.Column(db.DateTime, default=datetime.datetime.now)
+    date_loaded = db.Column(
+        db.DateTime, default=datetime.datetime.now, index=True)
 
     patient_id = db.Column(db.Integer, db.ForeignKey('patients.id'),
-                           nullable=False)
+                           nullable=False, index=True)
     patient = db.relationship('Patient',
                               backref=db.backref('diagimages', lazy=True))
 
@@ -116,8 +123,16 @@ def populate_database(db):
                 'P00', '').replace('P0', '').replace('P', ''))
             image_id = int(row['ImageID'].replace(
                 'I00', '').replace('I0', '').replace('I', ''))
-            d = DiagImage(id=image_id, image_type=ImageType(row['ImageType']), diag_json=row['DiagJSON'],
-                          diag_boxes=row['DiagBoxes'], date_loaded=row['DateLoaded'], patient_id=patient_id)
+            diag_json, diag_boxes = DiagnoseImage(image_id, row['ImageType'])
+            image = ''
+            if row['ImageType'] == 'RetinaImage':
+                image = 'retina_image.png'
+            elif row['ImageType'] == 'BreastCancer':
+                image = 'breastcancer_image.png'
+            else:
+                image = 'chestxray_image.png'
+            d = DiagImage(id=image_id, image_type=ImageType(row['ImageType']), diag_json=diag_json,
+                          diag_boxes=diag_boxes, date_loaded=row['DateLoaded'], patient_id=patient_id, image=image)
             db.session.add(d)
 
         db.session.commit()

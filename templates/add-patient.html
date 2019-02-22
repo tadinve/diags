@@ -3,13 +3,13 @@
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-            <a class="nav-link" href="#">HOME</a>
+            <a class="nav-link" href="{{url_for('index')}}">HOME</a>
         </li>
         <li class="nav-item active">
             <a class="nav-link" href="{{url_for('add_patient')}}">ADD PATIENT<span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">ALL PATIENTS</a>
+            <a class="nav-link" href="{{url_for('upload_image')}}">UPLOAD IMAGE</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="#">LOGOUT</a>
@@ -19,29 +19,92 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="card mt-3">
-        <div class="card-header">
-            <h5>Patient Details</h5>
+<div class="container d-flex justify-content-center">
+    <div class="col-lg-9">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-success mt-2">
+            {% for message in messages %}
+            <p class="pb-0">{{ message|safe }}</p>
+            {% endfor %}
         </div>
-        <div class="card-body">
-            <form method="POST" action="/patient" enctype="multipart/form-data">
-                {{ form.csrf_token }}
-                {% for field in form %}
-                <div class="form-group row">
-                    {{field.label(class='col-sm-3 col-form-label')}}
-                    <div class="col-sm-9">
-                        {% if field.widget.input_type != 'file' %}
-                        {{field(class='form-control')}}
-                        {% else %}
-                        {{ field }}
-                        {% endif %}
+        {% endif %}
+        {% endwith %}
+        <div class="card shadow border-primary mt-3">
+            <div class="card-header">
+                <h5>Patient Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{url_for('add_patient')}}" enctype="multipart/form-data" class="{% if form.errors %}was-validated{% endif %}">
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Please correct the errors below
                     </div>
-                </div>
-                {% endfor %}
-                <input type="submit" class="btn btn-primary btn-lg float-right" value="Save">
-            </form>
+                    {% endif %}
+                    {{ form.csrf_token }}
+                    {% for field in form if field.widget.input_type != 'hidden' %}
+                    {% if field.type == 'RadioField' %}
+                    <div class="form-group row">
+                        {{ field.label(class="col-sm-3 col-form-label") }}
+                        <div class="col-sm-9">
+                            {% for subfield in field %}
+                            <div class="custom-control custom-radio">
+                                {% if subfield.label.text == "Male" %}
+                                {{ subfield(class="custom-control-input",checked=checked, required=required) }}
+                                {% else %}
+                                {{ subfield(class="custom-control-input", required=required) }}
+                                {% endif %}
+                                {% if loop.index0 == 0 %}
+                                {% for error in field.errors %}
+                                <div class="invalid-feedback">
+                                    {{ error }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ subfield.label(class="custom-control-label") }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="form-group row">
+                        {{field.label(class='col-sm-3 col-form-label')}}
+                        <div class="col-sm-9">
+                            {% if field.widget.input_type != 'file' %}
+                            {% if field.errors %}
+                            {{field(class='form-control',value='')}}
+                            {% else %}
+                            {{field(class='form-control')}}
+                            {% endif %}
+                            {% else %}
+                            <div class="custom-file">
+                                {{ field(class='custom-file-input') }}
+                                <label class="custom-file-label" for="{{field.widget.id}}">Choose file</label>
+                            </div>
+                            {% endif %}
+                            {% if field.errors %}
+                            {% for error in field.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <input type="submit" class="btn btn-primary btn-lg float-right" value="Upload & Save">
+                </form>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
+<script>
+    $(document).ready(function () {
+        bsCustomFileInput.init()
+    })
+</script>
 {% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center mt-3">
+    <div class="col-lg-9">
+        <table class="table table-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">
+                        ID
+                    </th>
+                    <th scope="col">
+                        Name
+                    </th>
+                    <th scope="col">
+                        
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in patients %}
+                <tr>
+                    <th scope="row">
+                        {{p}}
+                    </th>
+                    <td>
+                        {{p.fullname}}
+                    </td>
+                    <td>
+                        <a href="{{url_for('patient_profile',patient_id=p)}}" class="btn btn-sm btn-info">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
