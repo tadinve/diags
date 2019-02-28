@@ -1,0 +1,69 @@
+{% extends 'base2.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row py-2 px-5 bg-gray">
+        <div class="col-lg-7 my-2">
+            <h5 class="text-primary mb-0">Patient Profile</h5>
+        </div>
+        <div class="col-lg-3 my-2">
+            <form action="/search">
+                <input type="search" class="form-control icon rounded-pill float-right" name="search" id="search" placeholder="&#xf002; Search Patient Name / ID">
+            </form>
+        </div>
+        <div class="col-lg-2 my-2">
+            <a class="btn btn-primary" href="{{url_for('add_patient')}}"><i class="fas fa-plus fa-fw"></i><i class="fas fa-user fa-fw"></i>&nbsp;Add Patient</a>
+        </div>
+    </div>
+    <div class="card-deck">
+        <div class="card shadow border-0 rounded-0">
+            <div class="card-body">
+                {%include 'profile2.html'%}
+            </div>
+        </div>
+        <div class="card text-center bg-light rounded-0">
+            <div class="card-header bg-white py-0 card-header-nav">
+                <ul class="nav nav-pills nav-fill card-header-pills" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active font-weight-bold rounded-0 py-3" id="ctscan-tab" data-toggle="tab"
+                            href="#ctscan" role="tab" aria-controls="ctscan" aria-selected="false">CT Scan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold rounded-0 py-3" id="chest-tab" data-toggle="tab" href="#chest"
+                            role="tab" aria-controls="chest" aria-selected="false">Chest X-Ray</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link font-weight-bold rounded-0 py-3" id="retinopathy-tab" data-toggle="tab" href="#retinopathy"
+                            role="tab" aria-controls="retinopathy" aria-selected="true">Retinopathy</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body px-0">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="ctscan" role="tabpanel" aria-labelledby="ctscan-tab">
+                        {% with diagtype='BreastCancer' %}
+                        {% include 'diagnosis3.html' %}
+                        {% endwith %}
+                    </div>
+                    <div class="tab-pane fade" id="chest" role="tabpanel" aria-labelledby="chest-tab">
+                        {% with diagtype='ChestX-Ray' %}
+                        {% include 'diagnosis3.html' %}
+                        {% endwith %}
+                    </div>
+                    <div class="tab-pane fade" id="retinopathy" role="tabpanel" aria-labelledby="retinopathy-tab">
+                        {% with diagtype='RetinaImage' %}
+                        {% include 'diagnosis3.html' %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block extra_js %}
+    {% with diags=diags %}
+    {% include 'gauges.html' %}
+    {% endwith %}
+    {% endblock %}

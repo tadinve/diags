@@ -1,22 +1,4 @@
-{% extends 'base.html' %}
-{% block navigation %}
-<div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
-            <a class="nav-link" href="{{url_for('index')}}">HOME</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{{url_for('add_patient')}}">ADD PATIENT</a>
-        </li>
-        <li class="nav-item active">
-            <a class="nav-link" href="{{url_for('upload_image')}}">UPLOAD IMAGE<span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">LOGOUT</a>
-        </li>
-    </ul>
-</div>
-{% endblock %}
+{% extends 'base2.html' %}
 
 {% block content %}
 <div class="container d-flex justify-content-center">

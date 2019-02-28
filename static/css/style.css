@@ -27,3 +27,32 @@
 .text-green{
     color:#00ff00 !important;
 }
+
+.card-header-nav{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+input.icon {
+    font-family: 'Font Awesome\ 5 Free';
+    font-style: normal;
+    font-weight: 900;
+    text-decoration: inherit;
+}
+
+
+.navbar-light .navbar-nav .active>.nav-link{
+    color:#007bff;
+    text-decoration: none;
+}
+
+.navbar-light .navbar-nav .nav-link{
+    color:black;
+    text-decoration: underline;
+    font-weight: bold;
+    margin-right: 2em;
+}
+
+.bg-gray{
+    background-color:#E1E1E1;
+}

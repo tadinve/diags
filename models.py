@@ -43,6 +43,8 @@ class Patient(db.Model):
     photo = db.Column(db.String)
     date_of_birth = db.Column(db.Date)
     gender = db.Column(db.Enum(Gender))
+    phone = db.Column(db.String(16), nullable=True)
+    address = db.Column(db.String(300), nullable=True)
 
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'),
                            nullable=False, default=1)

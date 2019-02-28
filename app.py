@@ -45,8 +45,21 @@ def todict(value):
     return json.loads(value)
 
 
+@app.template_filter()
+def getage(born):
+    if not born:
+        return ''
+    today = date.today()
+    return str(today.year - born.year - ((today.month, today.day) < (born.month, born.day)))
+
+
 @app.route('/')
 def index():
+    return redirect(url_for('patient_profile', patient_id='P001'))
+
+
+@app.route('/all-patients/')
+def all_patients():
     patients = Patient.query.all()
     return render_template('home.html', patients=patients)
 
@@ -83,7 +96,8 @@ def add_patient(patient_id):
             db.session.add(patient)
             db.session.commit()
             url = url_for('patient_profile', patient_id=repr(patient))
-            flash(f'Patient saved with ID: {repr(patient)}, <a href="{url}">view patient profile</a>')
+            flash(
+                f'Patient saved with ID: {repr(patient)}, <a href="{url}">view patient profile</a>')
         return redirect(url_for('add_patient'))
     return render_template('add-patient.html', form=form)
 
@@ -97,7 +111,7 @@ def patient_profile(patient_id):
         return abort(404)
     diags = DiagImage.query.filter_by(
         patient=patient).order_by(DiagImage.date_loaded.desc()).all()
-    return render_template('index.html', patient=patient, patient_id=patient_id, diags=diags)
+    return render_template('index2.html', patient=patient, patient_id=patient_id, diags=diags)
 
 
 @app.route('/patient/img/<patient_photo>/')
@@ -114,10 +128,17 @@ def diagnostics_img(diag_image):
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], 'diagnostics'), diag_image)
 
 
-@app.route('/diag/add/', methods=['GET', 'POST'])
-def upload_image():
+@app.route('/diag/add/', methods=['GET', 'POST'], defaults={'patient_id': None})
+@app.route('/diag/add/<patient_id>/', methods=['GET', 'POST'])
+def upload_image(patient_id):
+    if patient_id:
+        id = int(patient_id.replace('P00', '').replace(
+            'P0', '').replace('P', ''))
+        diag = DiagImage(patient_id=id)
+    else:
+        diag = DiagImage()
     from forms import DiagImageForm
-    diag = DiagImage()
+    
     form = DiagImageForm(obj=diag)
     if form.validate_on_submit():
         if 'image' not in request.files:
@@ -143,11 +164,13 @@ def upload_image():
             diag.diag_json = diag_json
             db.session.add(diag)
             db.session.commit()
-            url = url_for('patient_profile', patient_id="P{0:0=3d}".format(diag.patient_id))
-            flash(f'Image saved with ID: {repr(diag)}, <a href="{url}">view patient profile</a>')
+            url = url_for('patient_profile',
+                          patient_id="P{0:0=3d}".format(diag.patient_id))
+            flash(
+                f'Image saved with ID: {repr(diag)}, <a href="{url}">view patient profile</a>')
         return redirect(url_for('upload_image'))
     return render_template('add-image.html', form=form)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
