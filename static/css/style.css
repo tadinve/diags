@@ -61,3 +61,17 @@ input.icon {
     position: relative;
     top: -30px;
 }
+
+.gaugesize{
+    width: 100% !important;
+    height: auto !important;
+}
+
+.rounded-pill-left{
+    border-radius: 50em 0 0 50em !important;
+}
+.rounded-pill-right{
+    border-radius: 0 50em 50em 0 !important;
+    padding-left: 0;
+    padding-right: 0;
+}
