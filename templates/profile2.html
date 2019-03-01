@@ -11,61 +11,61 @@
     </div>
 </div>
 <div class="d-flex flex-row flex-wrap align-items-center">
-    <div class="col-5">
+    <div class="col-4">
         <img src="{{url_for('patient_img', patient_photo=patient.photo)}}" class="img-fluid rounded-circle" alt="">
     </div>
-    <div class="col-7">
+    <div class="col-8">
         <h4 class="text-green">{{patient.fullname}}</h4>
         <h6>{{patient.email}}</h6>
     </div>
 </div>
 <div class="row mt-5">
-    <div class="col-5">
+    <div class="col-4">
         <p><b>Patient ID</b></p>
     </div>
-    <div class="col-7">
+    <div class="col-8">
         <p><b>: <span class="text-primary">{{patient_id}}</span></b></p>
     </div>
 </div>
 {% if diags %}
 <div class="row">
-    <div class="col-5">
+    <div class="col-4">
         <p><b>Updated</b></p>
     </div>
-    <div class="col-7">
-        <p><b>: <span class="text-primary">{% for d in diags %}{% if loop.first %}{{d.date_loaded}}{% endif %}{% endfor %}</span></b></p>
+    <div class="col-8">
+        <p><b>: <span class="text-primary">{% for d in diags %}{% if loop.first %}{{d.date_loaded.strftime('%Y-%b-%d %X')}}{% endif %}{% endfor %}</span></b></p>
     </div>
 </div>
 {% endif %}
 <div class="row">
-    <div class="col-5">
+    <div class="col-4">
         <p><b>DOB</b></p>
     </div>
-    <div class="col-7">
-        <p><b>: <span class="text-primary">{{patient.date_of_birth}}</span></b></p>
+    <div class="col-8">
+        <p><b>: <span class="text-primary">{{patient.date_of_birth.strftime('%Y-%b-%d')}}</span></b></p>
     </div>
 </div>
 <div class="row">
-    <div class="col-5">
+    <div class="col-4">
         <p><b>Age</b></p>
     </div>
-    <div class="col-7">
+    <div class="col-8">
         <p><b>: <span class="text-primary">{{patient.date_of_birth|getage}}</span></b></p>
     </div>
 </div>
 <div class="row">
-    <div class="col-5">
+    <div class="col-4">
         <p><b>Contact No</b></p>
     </div>
-    <div class="col-7">
+    <div class="col-8">
         <p><b>: <span class="text-primary">{{patient.phone}}</span></b></p>
     </div>
 </div>
 <div class="row">
-    <div class="col-5">
+    <div class="col-4">
         <p><b>Address</b></p>
     </div>
-    <div class="col-7">
+    <div class="col-8">
         <p><b>: <span class="text-primary">{{patient.address}}</span></b></p>
     </div>
 </div>

@@ -50,9 +50,14 @@ input.icon {
     color:black;
     text-decoration: underline;
     font-weight: bold;
-    margin-right: 2em;
+    margin-left: 2em;
 }
 
 .bg-gray{
     background-color:#E1E1E1;
+}
+
+.reposition{
+    position: relative;
+    top: -30px;
 }

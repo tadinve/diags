@@ -1,8 +1,8 @@
 <script src="{{url_for('static',filename='js/gauge.min.js')}}"></script>
 <script>
     var gauge = []
-    var gaugeWidth = 140;
-    var gaugeHeight = 140;
+    var gaugeWidth = 120;
+    var gaugeHeight = 120;
     var majorTicks = [
         "0",
         "20",
@@ -41,10 +41,10 @@
             renderTo: 'gauge' + i + '-{{item}}',
             width: gaugeWidth,
             height: gaugeHeight,
-            units: "%",
+            units: "",
             value: 100 * diag_json[diag_json.length - 1][Object.keys(diag_json[diag_json.length - 1])[i]],
             minValue: 0,
-            valueBox: true,
+            valueBox: false,
             maxValue: 100,
             majorTicks: majorTicks,
             minorTicks: 2,
