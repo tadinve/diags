@@ -1,0 +1,35 @@
+<script>
+    var dates = {}
+    {% for d in diags %}
+    dates['{{d}}'] = "{{d.date_loaded.strftime('%Y-%b-%d') }}"
+    {% endfor %}
+{% for diagtype in diagtypes %}
+var thumbs{{loop.index}} = document.getElementsByClassName('action-img-{{diagtype}}');
+var diagImg{{loop.index}} = document.getElementById('diag-img-{{diagtype}}');
+function changeImage{{loop.index}}(el){
+    var imgID = el.id.split('-')[el.id.split('-').length-1];
+    diagImg{{loop.index}}.src = el.src
+    var old = document.querySelector('.border.border-primary.action-img-{{diagtype}}');
+    var oldImgID = old.id.split('-')[old.id.split('-').length-1];
+    old.classList.remove('border');
+    old.classList.remove('border-primary');
+    el.classList.add('border');
+    el.classList.add('border-primary');
+    var oldgg = document.getElementsByClassName('gaugegroup-{{diagtype}}-'+oldImgID);
+    for(var i=0;i<oldgg.length;i++){
+        oldgg[i].classList.add('hidden-group');
+    }
+    var gg = document.getElementsByClassName('gaugegroup-{{diagtype}}-'+imgID);
+    for(var j=0;j<gg.length;j++){
+        gg[j].classList.remove('hidden-group');
+    }
+    var title = document.getElementById('imgID-{{diagtype}}');
+    title.innerText = imgID;
+    var date = document.getElementById('diagDate-{{diagtype}}');
+    date.innerText = dates[imgID]
+}
+for(var i=0;i<thumbs{{loop.index}}.length;i++){
+    thumbs{{loop.index}}[i].addEventListener('click',changeImage{{loop.index}}.bind(null,thumbs{{loop.index}}[i]),false);
+}
+{% endfor %}
+</script>
