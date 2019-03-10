@@ -13,10 +13,11 @@
                         placeholder="&#xf002; Search Patient Name / ID"> -->
                     <div class="input-group">
                         <div class="input-group-prepend">
-                            <span class="input-group-text bg-white border-right-0 rounded-pill-left" id="basic-addon1"><i class="fas fa-search fa-fw"></i></span>
+                            <span class="input-group-text bg-white border-right-0 rounded-pill-left" id="basic-addon1"><i
+                                    class="fas fa-search fa-fw"></i></span>
                         </div>
-                        <input type="search" class="form-control border-left-0 rounded-pill-right" placeholder="Search Patient Name / ID" aria-label="Search Patient Name / ID"
-                            aria-describedby="basic-addon1">
+                        <input type="search" class="form-control border-left-0 rounded-pill-right" placeholder="Search Patient Name / ID"
+                            aria-label="Search Patient Name / ID" aria-describedby="basic-addon1">
                     </div>
                 </form>
             </div>
@@ -28,6 +29,17 @@
         </div>
     </div>
 </div>
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<h5 class="alert alert-{{ category }} text-center alert-dismissible fade show">{{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</h5>
+{% endfor %}
+{% endif %}
+{% endwith %}
 <div class="container">
     <div class="row pb-4">
         <div class="col-lg-5">
@@ -39,42 +51,38 @@
         </div>
         <div class="col-lg-7">
             <div class="card text-center bg-light rounded-0">
+                {% if available_types %}
                 <div class="card-header bg-white py-0 card-header-nav">
                     <ul class="nav nav-pills nav-fill card-header-pills" id="myTab" role="tablist">
+
+                        {% for t in available_types %}
                         <li class="nav-item">
-                            <a class="nav-link active font-weight-bold rounded-0 py-3" id="ctscan-tab" data-toggle="tab"
-                                href="#ctscan" role="tab" aria-controls="ctscan" aria-selected="false">Mammogram</a>
+                            <a class="nav-link font-weight-bold rounded-0 py-3{% if loop.first %} active{% endif %}" id="{{t}}-tab"
+                                data-toggle="tab" href="#{{t}}" role="tab" aria-controls="{{t}}" aria-selected="{% if loop.first %}true{% else %}false{% endif %}">{{t|getlabel}}</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link font-weight-bold rounded-0 py-3" id="chest-tab" data-toggle="tab" href="#chest"
-                                role="tab" aria-controls="chest" aria-selected="false">Chest X-Ray</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link font-weight-bold rounded-0 py-3" id="retinopathy-tab" data-toggle="tab"
-                                href="#retinopathy" role="tab" aria-controls="retinopathy" aria-selected="true">Retinopathy</a>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </div>
 
                 <div class="card-body p-0">
                     <div class="tab-content" id="myTabContent">
-                        <div class="tab-pane fade show active" id="ctscan" role="tabpanel" aria-labelledby="ctscan-tab">
-                            {% with diagtype='BreastCancer' %}
+
+                        {% for t in available_types %}
+                        <div class="tab-pane fade{% if loop.first %} show active{% endif %}" id="{{t}}" role="tabpanel"
+                            aria-labelledby="{{t}}-tab">
+                            {% with diagtype=t %}
                             {% include 'diagnosis3.html' %}
                             {% endwith %}
                         </div>
-                        <div class="tab-pane fade" id="chest" role="tabpanel" aria-labelledby="chest-tab">
-                            {% with diagtype='ChestX-Ray' %}
-                            {% include 'diagnosis3.html' %}
-                            {% endwith %}
-                        </div>
-                        <div class="tab-pane fade" id="retinopathy" role="tabpanel" aria-labelledby="retinopathy-tab">
-                            {% with diagtype='RetinaImage' %}
-                            {% include 'diagnosis3.html' %}
-                            {% endwith %}
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
+                {% else %}
+                <h5 class="mt-3">No Diagnostics Images for this patient</h5>
+                <a href="{{url_for('upload_image', patient_id=patient_id)}}" class="btn btn-primary btn-lg mt-3"><i
+                        class="fas fa-plus fa-fw"></i><i class="fas fa-image fa-fw"></i>&nbsp;Add
+                    Diagnostic Image</a>
+                {% endif %}
             </div>
         </div>
     </div>

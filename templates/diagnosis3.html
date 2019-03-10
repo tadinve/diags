@@ -1,7 +1,8 @@
 <div class="card-group">
     <div class="card ml-0 my-2 bg-light border-0">
         <div class="card-header bg-gray d-flex align-items-center justify-content-center">
-            <h5 class="card-title text-center text-primary mb-0">Image: <span class="font-weight-light" id="imgID-{{diagtype}}">{% for item in diags if item.image_type.value == diagtype %}
+            <h5 class="card-title text-center text-primary mb-0">Image: <span class="font-weight-light" id="imgID-{{diagtype}}">{%
+                    for item in diags if item.image_type.value == diagtype %}
                     {% if loop.first %}{{item}}{% endif %}{% endfor %}</span></h5>
         </div>
         {% for item in diags if item.image_type.value == diagtype %}
@@ -12,40 +13,116 @@
         {% endfor %}
         <div class="row pl-3 mr-0" style="max-height:300px; overflow-y:auto;">
             {% for item in diags if item.image_type.value == diagtype %}
-            <div class="col-4 px-0">
+            {% if loop.index < 5 %} <div class="col-3 px-0">
                 <img src="{{url_for('diagnostics_img', diag_image=item.image)}}" class="action-img-{{diagtype}} img-fluid img-thumbnail rounded-0{%if loop.first %} border border-primary{% endif %}"
                     alt="{{item}}" id="thumb-{{diagtype}}-{{item}}">
-            </div>
-            {% endfor %}
         </div>
-
+        {% endif %}
+        {% endfor %}
     </div>
-    <div class="card mr-lg-0 my-2 bg-light border-0">
-        <div class="card-header bg-gray d-flex align-items-center justify-content-center">
-            <h5 class="card-title text-center text-primary mb-0">Diagnostic: <span class="font-weight-light" id="diagDate-{{diagtype}}">{%
-                    for item in diags if item.image_type.value == diagtype %}{% if loop.first
-                    %}{{item.date_loaded.strftime('%Y-%b-%d')}}{% endif %}{% endfor %}</span></h5>
-        </div>
-        <div class="card-body d-flex flex-wrap justify-content-between align-items-top pb-0">
+    
+    </div>
+<div class="card mr-lg-0 my-2 bg-light border-0">
+    <div class="card-header bg-gray d-flex align-items-center justify-content-center">
+        <h5 class="card-title text-center text-primary mb-0">Diagnostic: <span class="font-weight-light" id="diagDate-{{diagtype}}">{%
+                for item in diags if item.image_type.value == diagtype %}{% if loop.first
+                %}{{item.date_loaded.strftime('%Y-%b-%d')}}{% endif %}{% endfor %}</span></h5>
+    </div>
+    <div class="card-body d-flex flex-wrap justify-content-between align-items-top pb-0">
+        {% for item in diags if item.image_type.value == diagtype %}
+        {% if not loop.first %}
+        {% for key,value in item.diag_json|tosortedlist %}
+        {% if loop.index < 5 %} <div style="max-width: 40%;" class="hidden-group gaugegroup-{{diagtype}}-{{item}}">
+            <canvas class="gaugesize" id="gauge{{loop.index0}}-{{item}}"></canvas>
+            <h6 class="text-center reposition">{{(100*value)|round(2)}}%</h6>
+            <h6 class="text-center reposition">{{key}}</h6>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    {% for key,value in item.diag_json|tosortedlist %}
+    {% if loop.index < 5 %} <div style="max-width: 40%;" class="gaugegroup-{{diagtype}}-{{item}}">
+        <canvas class="gaugesize" id="gauge{{loop.index0}}-{{item}}"></canvas>
+        <h6 class="text-center reposition">{{(100*value)|round(2)}}%</h6>
+        <h6 class="text-center reposition">{{key}}</h6>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+</div>
+</div>
+</div>
+<div class="row pl-3 mr-0">
+        <div class="col-12">
+            <button id="addnote-{{diagtype}}" type="button" class="btn btn-primary mb-2" data-toggle="modal" data-target="#note-modal-{{diagtype}}">
+                <i class="fas fa-plus fa-fw"></i><i class="fas fa-sticky-note fa-fw"></i>&nbsp;Add Diagnostic Note
+            </button>
             {% for item in diags if item.image_type.value == diagtype %}
-            {% if not loop.first %}
-            {% for key,value in (item.diag_json|todict).items() %}
-            <div style="max-width: 40%;" class="hidden-group gaugegroup-{{diagtype}}-{{item}}">
-                <canvas class="gaugesize" id="gauge{{loop.index0}}-{{item}}"></canvas>
-                <h6 class="text-center reposition">{{(100*value)|round(2)}}%</h6>
-                <h6 class="text-center reposition">{{key}}</h6>
+            {% for note in item.diagnotes %}
+            {% if loop.index < 4 %} <hr>
+                <small class="text-muted form-text">{{item}}</small>
+                <p>{{note.notes}}</p>
+                <small class="text-muted form-text">{{note.date_added.strftime('%Y-%b-%d %X')}}</small>
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+        </div>
+    </div>
+
+<!-- Modal -->
+<div class="modal fade" id="note-modal-{{diagtype}}" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <!-- {#{% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="alert alert-success mt-2">
+                {% for message in messages %}
+                <p class="pb-0">{{ message|safe }}</p>
+                {% endfor %}
             </div>
-            {% endfor %}
-            {% else %}
-            {% for key,value in (item.diag_json|todict).items() %}
-            <div style="max-width: 40%;" class="gaugegroup-{{diagtype}}-{{item}}">
-                <canvas class="gaugesize" id="gauge{{loop.index0}}-{{item}}"></canvas>
-                <h6 class="text-center reposition">{{(100*value)|round(2)}}%</h6>
-                <h6 class="text-center reposition">{{key}}</h6>
-            </div>
-            {% endfor %}
             {% endif %}
-            {% endfor %}
+            {% endwith %}#} -->
+            {%for item in diags if item.image_type.value == diagtype %}
+                {% if loop.first %}
+                <form method="POST" action="{{url_for('add_note', image_id=item.id)}}" enctype="multipart/form-data" class="{% if form.errors %}was-validated{% endif %}" id="addnote-form-{{diagtype}}">
+                {% endif %}
+                {% endfor %}
+            
+                <div class="modal-body">
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Please correct the errors below
+                    </div>
+                    {% endif %}
+                    {{ form.csrf_token }}
+                    {% for field in form if field.widget.input_type != 'hidden' %}
+                    <div class="form-group row">
+                        {{field.label(class='col-sm-3 col-form-label')}}
+                        <div class="col-sm-9">
+                            {% if field.errors %}
+                            {{field(class='form-control', value='')}}
+                            {% else %}
+                            {{field(class='form-control')}}
+                            {% endif %}
+                            {% if field.errors %}
+                            {% for error in field.errors %}
+                            <div class="invalid-feedback">
+                                {{ error }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <input type="submit" class="btn btn-primary float-right" value="Add Note">
+                </div>
+
+            </form>
         </div>
     </div>
 </div>

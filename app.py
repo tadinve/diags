@@ -2,9 +2,9 @@ from datetime import date
 import json
 import os
 import uuid
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, abort
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, abort, session
 from werkzeug.utils import secure_filename
-from models import db, populate_database, Patient, Gender, DiagImage, ImageType
+from models import db, populate_database, Patient, Gender, DiagImage, ImageType, DiagNotes
 from utils import DiagnoseImage
 
 app = Flask(__name__)
@@ -15,6 +15,7 @@ app.secret_key = 'some secret key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+db.session.expire_on_commit = False
 with app.app_context():
     db.create_all()
     populate_database(db)
@@ -23,6 +24,9 @@ os.makedirs(os.path.join(
     app.config['UPLOAD_FOLDER'], 'patients'), exist_ok=True)
 os.makedirs(os.path.join(
     app.config['UPLOAD_FOLDER'], 'diagnostics'), exist_ok=True)
+
+LABELS = {'RetinaImage': 'Retinopathy',
+          'ChestX-Ray': 'Chest X-Ray', 'BreastCancer': 'Mammogram'}
 
 
 def suffix(d):
@@ -43,6 +47,21 @@ def todict(value):
     if not value:
         return {}
     return json.loads(value)
+
+
+@app.template_filter()
+def tosortedlist(value):
+    mydict = json.loads(value)
+    keys = sorted(mydict, key=mydict.__getitem__, reverse=True)
+    output = []
+    for key in keys:
+        output.append((key, mydict[key]))
+    return output
+
+
+@app.template_filter()
+def getlabel(value):
+    return LABELS[value]
 
 
 @app.template_filter()
@@ -111,7 +130,14 @@ def patient_profile(patient_id):
         return abort(404)
     diags = DiagImage.query.filter_by(
         patient=patient).order_by(DiagImage.date_loaded.desc()).all()
-    return render_template('index2.html', patient=patient, patient_id=patient_id, diags=diags)
+    available_types = []
+    for item in diags:
+        if item.image_type.value not in available_types:
+            available_types.append(item.image_type.value)
+    from forms import get_notes_form
+    noteform = get_notes_form(id)
+    session['url'] = url_for('patient_profile', patient_id=patient_id)
+    return render_template('index2.html', patient=patient, patient_id=patient_id, diags=diags, available_types=available_types, form=noteform)
 
 
 @app.route('/patient/img/<patient_photo>/')
@@ -138,7 +164,7 @@ def upload_image(patient_id):
     else:
         diag = DiagImage()
     from forms import DiagImageForm
-    
+
     form = DiagImageForm(obj=diag)
     if form.validate_on_submit():
         if 'image' not in request.files:
@@ -170,6 +196,27 @@ def upload_image(patient_id):
                 f'Image saved with ID: {repr(diag)}, <a href="{url}">view patient profile</a>')
         return redirect(url_for('upload_image'))
     return render_template('add-image.html', form=form)
+
+
+# @app.route('/notes/add/', methods=['POST'], defaults={'image_id': None})
+@app.route('/notes/add/<image_id>/', methods=['POST'])
+def add_note(image_id):
+    note = DiagNotes()
+    from forms import get_notes_form
+    image = DiagImage.query.get(image_id)
+    form = get_notes_form(image.patient_id, obj=note)
+    if form.validate_on_submit():
+        form.populate_obj(note)
+        note.user_id = 1  # TODO: this should be changed after user login system implementation
+        try:
+            db.session.add(note)
+            db.session.commit()
+            flash(f'Note saved with ID: {repr(note)}', category='success')
+        except Exception:
+            flash('Failed to add the note', category='danger')
+        url = url_for('patient_profile',
+                      patient_id="P{0:0=3d}".format(note.image.patient_id))
+        return redirect(url)
 
 
 if __name__ == '__main__':

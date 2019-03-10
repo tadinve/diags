@@ -25,6 +25,10 @@ class User(db.Model):
     company = db.relationship('Company',
                               backref=db.backref('users', lazy=True))
 
+    @property
+    def fullname(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
     def __repr__(self):
         return "U{0:0=3d}".format(self.id)
 
@@ -82,6 +86,25 @@ class DiagImage(db.Model):
 
     def __repr__(self):
         return "I{0:0=3d}".format(self.id)
+
+
+class DiagNotes(db.Model):
+    __tablename__ = 'diagnotes'
+    id = db.Column(db.Integer, primary_key=True)
+    notes = db.Column(db.Text)
+    image_id = db.Column(db.Integer, db.ForeignKey('diagimages.id'),
+                         nullable=False, index=True)
+    image = db.relationship('DiagImage',
+                            backref=db.backref('diagnotes', lazy=False))
+    date_added = db.Column(
+        db.DateTime, default=datetime.datetime.now, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'),
+                        nullable=False)
+    user = db.relationship('User',
+                           backref=db.backref('diagnotes', lazy=False))
+
+    def __repr__(self):
+        return "N{0:0=3d}".format(self.id)
 
 
 def populate_database(db):

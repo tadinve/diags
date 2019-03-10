@@ -33,16 +33,16 @@
         }
     ]
     var diag_json = [] 
-    {% for diagtype in ['BreastCancer', 'ChestX-Ray', 'RetinaImage'] %} 
+    {% for diagtype in available_types %} 
     {% for item in diags if item.image_type.value == diagtype %} 
-    diag_json.push(JSON.parse({{item.diag_json | tojson | safe}}));
-    for (var i = 0; i < Object.keys(diag_json[diag_json.length - 1]).length; i++) {
+    diag_json.push(JSON.parse('{{item.diag_json| tosortedlist | tojson | safe}}'));
+    for (var i = 0; i < diag_json[diag_json.length - 1].length; i++) {
         gauge.push(new RadialGauge({
             renderTo: 'gauge' + i + '-{{item}}',
             width: gaugeWidth,
             height: gaugeHeight,
             units: "",
-            value: 100 * diag_json[diag_json.length - 1][Object.keys(diag_json[diag_json.length - 1])[i]],
+            value: 100 * diag_json[diag_json.length - 1][i][1],
             minValue: 0,
             valueBox: false,
             maxValue: 100,
@@ -61,6 +61,9 @@
             animationDuration: 1500,
             animationRule: "linear",
         }).draw());
+        if(i>2 || i>diag_json[diag_json.length -1].length-2){
+            break;
+        }
     } 
     {% endfor %}
     {% endfor %}

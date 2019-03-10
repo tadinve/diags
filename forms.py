@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Email, Length
-from wtforms.fields import FileField, SelectField, StringField, DateField, RadioField
+from wtforms.fields import FileField, SelectField, StringField, DateField, RadioField, TextAreaField
 from wtforms.fields.html5 import EmailField
 from wtforms.widgets import TextInput
 from wtforms import ValidationError
@@ -40,3 +40,15 @@ class DiagImageForm(FlaskForm):
                       render_kw={'accept': 'image/*'})
     image_type = RadioField(choices=[(i.value, i.value)
                                      for i in ImageType], coerce=str)
+
+
+def get_notes_form(patient_id, **kwargs):
+
+    class DiagNotesForm(FlaskForm):
+        notes = TextAreaField('Notes', validators=[DataRequired()])
+
+    image_id = SelectField('Image', choices=[(i.id, '{}'.format(repr(i))) for i in DiagImage.query.filter_by(patient_id=patient_id).all()],
+                           coerce=int)
+
+    setattr(DiagNotesForm, 'image_id', image_id)
+    return DiagNotesForm(**kwargs)
