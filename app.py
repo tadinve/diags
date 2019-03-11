@@ -116,7 +116,7 @@ def add_patient(patient_id):
             db.session.commit()
             url = url_for('patient_profile', patient_id=repr(patient))
             flash(
-                f'Patient saved with ID: {repr(patient)}, <a href="{url}">view patient profile</a>')
+                'Patient saved with ID: {}, <a href="{}">view patient profile</a>'.format(repr(patient), url))
         return redirect(url_for('add_patient'))
     return render_template('add-patient.html', form=form)
 
@@ -193,7 +193,7 @@ def upload_image(patient_id):
             url = url_for('patient_profile',
                           patient_id="P{0:0=3d}".format(diag.patient_id))
             flash(
-                f'Image saved with ID: {repr(diag)}, <a href="{url}">view patient profile</a>')
+                'Image saved with ID: {}, <a href="{}">view patient profile</a>'.format(repr(diag), url))
         return redirect(url_for('upload_image'))
     return render_template('add-image.html', form=form)
 
@@ -211,7 +211,8 @@ def add_note(image_id):
         try:
             db.session.add(note)
             db.session.commit()
-            flash(f'Note saved with ID: {repr(note)}', category='success')
+            flash('Note saved with ID: {}'.format(
+                repr(note)), category='success')
         except Exception:
             flash('Failed to add the note', category='danger')
         url = url_for('patient_profile',
