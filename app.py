@@ -4,7 +4,7 @@ import os
 import uuid
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, abort, session
 from werkzeug.utils import secure_filename
-from models import db, populate_database, Patient, Gender, DiagImage, ImageType, DiagNotes
+from models import db, populate_database, Patient, Gender, DiagImage, ImageType, DiagNotes, Company
 from utils import DiagnoseImage
 
 app = Flask(__name__)
@@ -40,6 +40,12 @@ def custom_strftime(format, t):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# TODO: this will be changed after login implementation
+@app.context_processor
+def get_company():
+    return dict(company=Company.query.get(1))
 
 
 @app.template_filter()

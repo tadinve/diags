@@ -138,7 +138,7 @@ def populate_database(db):
             patient_id = int(row['PatientID'].replace(
                 'P00', '').replace('P0', '').replace('P', ''))
             p = Patient(id=patient_id, first_name=row['FirstName'],
-                        last_name=row['LastName'], email=row['Email'], photo=row['PhotoID'], date_of_birth=row['DateOfBirth'],
+                        last_name=row['LastName'], email=row['Email'], photo='team-3.jpg', date_of_birth=row['DateOfBirth'],
                         gender=Gender[row['Gender']], company_id=company_id)
             db.session.add(p)
 
